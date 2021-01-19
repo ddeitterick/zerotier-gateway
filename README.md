@@ -18,7 +18,7 @@ To run this container in the correct way requires some special options to give i
       --cap-add=NET_ADMIN \
       --net=net_LAN_ETH0 \
       --ip=172.17.50.137 \
-      bfg100k/zerotier
+      bfg100k/zerotier-gateway
 
 
 This runs bfg100k/zerotier in a container exposed on the physical network via a macvlan interface. For this to work, you will need to create a docker macvlan network using the following syntax:
