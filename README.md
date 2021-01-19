@@ -4,31 +4,38 @@
 
 #### Description
 
-This is a container based on a lightweight Alpine Linux image and a copy of ZeroTier One. It's designed to allow you to run ZeroTier One as a service on container-oriented distributions like Fedora CoreOS, though it should work on any Linux system with Docker or Podman.
+This is a container based on a lightweight Alpine Linux image and a copy of ZeroTier One. It's designed to allow you to run ZeroTier One as a containerised service including the ability to configure it as a (inbound / outbond / bidirectional) gateway between your local network and the ZT network(s).
 
 #### Run
 
-To run this container in the correct way requires some special options to give it special permissions and allow it to persist its files. Here's an example (tested on Fedora CoreOS):
+To run this container in the correct way requires some special options to give it special permissions and allow it to persist its files. Here's an example (tested on Ubuntu 20.04 LTS):
 
-    docker run --name zerotier-one --device=/dev/net/tun --net=host \
-      --cap-add=NET_ADMIN --cap-add=SYS_ADMIN \
-      -v /var/lib/zerotier-one:/var/lib/zerotier-one zyclonite/zerotier
+    docker run 
+      --name zerotier-gw \
+      -v /var/lib/zerotier-one:/var/lib/zerotier-one \
+      -e NETWORK_IDS=[ZT_NETWORK_ID1;ZT_NETWORK_ID2] \
+      -e GATEWAY_MODE=[inbound|outbound|both] \
+      --cap-add=NET_ADMIN \
+      --net=net_LAN_ETH0 \
+      --ip=172.17.50.137 \
+      bfg100k/zerotier
 
 
-This runs zyclonite/zerotier in a container with special network admin permissions and with access to the host's network stack (no network isolation) and /dev/net/tun to create tun/tap devices. This will allow it to create zt# interfaces on the host the way a copy of ZeroTier One running on the host would normally be able to.
+This runs bfg100k/zerotier in a container exposed on the physical network via a macvlan interface. For this to work, you will need to create a docker macvlan network using the following syntax:
 
-In other words that basically does the same thing that running zerotier-one directly on the host would do, except it runs in a container. Since Fedora CoreOS has no package management this is the preferred way of distributing software for it.
+    docker network create \
+      --driver macvlan \
+      --gateway 172.17.50.129 \
+      --subnet 172.17.50.128/28 \
+      --ip-range 172.17.50.128/28 \
+      -o parent=eth0 \
+      net_LAN_ETH0
 
 It also mounts /var/lib/zerotier-one to /var/lib/zerotier-one inside the container, allowing your service container to persist its state across restarts of the container itself. If you don't do this it'll generate a new identity every time. You can put the actual data somewhere other than /var/lib/zerotier-one if you want.
 
-To join a zerotier network you can use
+To join one or more zerotier networks, you can specify the network ids in the environment variable NETWORK_IDS (semi-colon delimited). 
 
-    docker exec zerotier-one /zerotier-cli join 8056c2e21c000001
-
-
-or create an empty file with the network as name
-
-    /var/lib/zerotier-one/networks.d/8056c2e21c000001.conf
+To configure gateway mode, pass in the environment variable GATEWAY_MODE. You can choose between inbound (i.e. ZT -> Local), outbound (i.e. Local -> ZT) or bidirectional (i.e. Local <-> ZT). Note that for this to work, you will need to enable ip forwarding on the docker host first. Note also that for now, gateway mode will only be configured for the first ZT network (if you have multiple ZT networks connected).
 
 #### Source
 
