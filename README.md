@@ -38,7 +38,7 @@ To join one or more zerotier networks, you can specify the network ids in the en
 To configure gateway mode, pass in the environment variable GATEWAY_MODE. You can choose between inbound (i.e. ZT -> Local), outbound (i.e. Local -> ZT) or bidirectional (i.e. Local <-> ZT). Note that for this to work, you will need to enable ip forwarding on the docker host first. Note also that for now, gateway mode will only be configured for the first ZT network (if you have multiple ZT networks connected).
 
 #### Source
-https://github.com/bfg100k/zerotier-docker
+https://github.com/bfg100k/zerotier-gateway
 
 Forked from
 https://github.com/zyclonite/zerotier-docker
