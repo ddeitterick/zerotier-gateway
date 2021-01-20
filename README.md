@@ -25,7 +25,7 @@ To run this container in the correct way requires some special options to give i
       --ip=172.17.50.137 \
       bfg100k/zerotier-gateway
 
-This runs bfg100k/zerotier-gateway in a container exposed on the physical network (i.e. it has its own IP on the local network) via a macvlan interface (preferred method). More details on macvlan network and docker can be found in the references section below. An example of how you can create a macvlan network in docker is shown below:
+This runs bfg100k/zerotier-gateway in a container exposed on the physical network (i.e. it has its own IP on the local network) via a macvlan interface (preferred method although host networking works too). More details on macvlan network and docker can be found in the references section below. An example of how you can create a macvlan network in docker is shown below:
 
     docker network create \
       --driver macvlan \
