@@ -39,10 +39,10 @@ It also mounts /var/lib/zerotier-one to /var/lib/zerotier-one inside the contain
 
 To join one or more zerotier networks, you can specify the network ids in the environment variable NETWORK_IDS (semi-colon delimited). 
 
-To configure gateway mode, pass in the environment variable GATEWAY_MODE. You can choose between inbound (i.e. ZT -> Local), outbound (i.e. Local -> ZT) or both (i.e. Local <-> ZT). Note that for this to work, you will need to do a couple of additional tasks:
+To configure gateway mode, pass in the environment variable GATEWAY_MODE. You can choose between inbound (i.e. ZT -> Local), outbound (i.e. Local -> ZT) or both (i.e. Local <-> ZT). Note that for this to work, you may need to do a couple of additional tasks:
 
-1) Enable ip forwarding on the docker host before starting the container. (By default, docker will enable ip forwarding in the host when the service starts so nothing to do here unless you have explicitly turned it off. In any case, the startup script will check for this and terminate the container if gateway mode is enabled but ip forwarding is disabled.) 
-2) Create the necessary static route(s) in either the ZT network (inbound gateway) or the local network (outbound gateway) or both (bidirectional gateway). Settings for ZT network is done in the ZT Web admin console and in your home router/gateway in your local network.
+1) Make sure ip forwarding on the docker host is enabled before starting the container. (By default, docker will enable ip forwarding in the host when the docker engine starts so nothing to do here unless you have explicitly turned it off. In any case, the startup script will check for this and terminate the container if gateway mode is enabled but ip forwarding is disabled.) 
+2) Create the necessary static route(s) in either the ZT network (inbound gateway) or the local network (outbound gateway) or both (bidirectional gateway). Settings for ZT network is done in the ZT Web admin console and in your home router/gateway admin console for your local network.
 
 Note also that for now, gateway mode will only be configured for the first ZT network (if you have multiple ZT networks connected).
 
