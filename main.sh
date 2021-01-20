@@ -17,6 +17,37 @@ export PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
 RETRY_COUNT=3
 SLEEP_TIME=5
 
+#function to clean up iptables when container is shut down
+cleanup() {
+    case ${GATEWAY_MODE,,} in
+        inbound)
+            echo "INFO: Removing inbound access rules from iptables."
+            iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+            iptables -D FORWARD -i eth0 -o ztr2q6lisz -m state --state RELATED,ESTABLISHED -j ACCEPT
+            iptables -D FORWARD -i ztr2q6lisz -o eth0 -j ACCEPT
+        ;;
+
+        outbound)
+            echo "INFO: Removing outbound access rules from iptables."
+            iptables -t nat -D POSTROUTING -o ztr2q6lisz -j MASQUERADE
+            iptables -D FORWARD -i ztr2q6lisz -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+            iptables -D FORWARD -i eth0 -o ztr2q6lisz -j ACCEPT
+        ;;
+
+        both)
+            echo "INFO: Removing bidirectional  access rules from iptables."
+            iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+            iptables -t nat -D POSTROUTING -o ztr2q6lisz -j MASQUERADE
+            iptables -D FORWARD -i eth0 -o ztr2q6lisz -j ACCEPT
+            iptables -D FORWARD -i ztr2q6lisz -o eth0 -j ACCEPT
+        ;;
+esac
+
+}
+
+#trap SIGTERM
+trap 'cleanup' SIGTERM
+
 #setting up TUN device
 mkdir -p /dev/net
 if [ ! -c /dev/net/tun ]; then
