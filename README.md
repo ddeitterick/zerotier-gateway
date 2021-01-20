@@ -55,6 +55,6 @@ https://github.com/zyclonite/zerotier-docker
 
 
 #### References
-Docker & macvlan interfaces - https://blog.scottlowe.org/2016/01/28/docker-macvlan-interfaces/
-Turning on/off ip-forwarding in Linux - https://linuxconfig.org/how-to-turn-on-off-ip-forwarding-in-linux
-Static routes - https://www.ccnablog.com/static-routing/
+  1) Docker & macvlan interfaces - https://blog.scottlowe.org/2016/01/28/docker-macvlan-interfaces/
+  2) Turning on/off ip-forwarding in Linux - https://linuxconfig.org/how-to-turn-on-off-ip-forwarding-in-linux
+  3) Static routes - https://www.ccnablog.com/static-routing/
