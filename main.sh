@@ -91,7 +91,7 @@ if [ ! -z $GATEWAY_MODE ]; then
     fi
 
     #Import iptables saved rules
-    $FILE=/etc/iptables/rules.v4
+    FILE=/etc/iptables/rules.v4
     if [ -f "$FILE" ]; then
         iptables-restore -n $FILE
         echo "INFO: Successfully imported iptables save file from $FILE."
