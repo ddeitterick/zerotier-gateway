@@ -6,10 +6,10 @@
 # ========
 # # Create TUN device if necessary
 # # Join ZT network(s) if specified via ENV var NETWORK_IDS
-# # Setup necessary iptable rules to enable gateway function
+# # Restore iptable rules from file to enable gateway function
 #
 # Author: SidneyC <sidneyc_at_outlook_dot_com>
-#
+# Modified: ddeitterick
 #############################################################
 export PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
 
@@ -17,38 +17,9 @@ export PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
 RETRY_COUNT=3
 SLEEP_TIME=5
 
-#function to clean up iptables when container is shut down
-cleanup() {
-    case ${GATEWAY_MODE,,} in
-        inbound)
-            echo "INFO: Removing inbound access rules from iptables."
-            iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
-            iptables -D FORWARD -i eth0 -o ztr2q6lisz -m state --state RELATED,ESTABLISHED -j ACCEPT
-            iptables -D FORWARD -i ztr2q6lisz -o eth0 -j ACCEPT
-        ;;
+trap SIGTERM
 
-        outbound)
-            echo "INFO: Removing outbound access rules from iptables."
-            iptables -t nat -D POSTROUTING -o ztr2q6lisz -j MASQUERADE
-            iptables -D FORWARD -i ztr2q6lisz -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-            iptables -D FORWARD -i eth0 -o ztr2q6lisz -j ACCEPT
-        ;;
-
-        both)
-            echo "INFO: Removing bidirectional  access rules from iptables."
-            iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
-            iptables -t nat -D POSTROUTING -o ztr2q6lisz -j MASQUERADE
-            iptables -D FORWARD -i eth0 -o ztr2q6lisz -j ACCEPT
-            iptables -D FORWARD -i ztr2q6lisz -o eth0 -j ACCEPT
-        ;;
-esac
-
-}
-
-#trap SIGTERM
-trap 'cleanup' SIGTERM
-
-#setting up TUN device
+#Setting up TUN device
 mkdir -p /dev/net
 if [ ! -c /dev/net/tun ]; then
     echo "INFO: No TUN device found. Creating one."
@@ -61,7 +32,7 @@ if [ ! -c /dev/net/tun ]; then
 
 fi
 
-#start the ZT service
+#Start the ZT service
 zerotier-one & export APP_PID=$!
 
 TRY_COUNT=0
@@ -80,9 +51,9 @@ do
         fi
     fi
 done
-#service up and ONLINE!
+#Service up and ONLINE!
 
-#join one or more network(s) if specified 
+#Join one or more network(s) if specified 
 if [ ! -z "$NETWORK_IDS" ]; then
     while IFS= read -d ';' LINE; do
 echo "$LINE"
@@ -95,7 +66,7 @@ echo "$LINE"
     done <<< "$NETWORK_IDS"
 fi
 
-#log what network is connected
+#Log which network(s) are connected
 CMD_OUT=$( zerotier-cli listnetworks )
 CON_COUNT=$( echo "$CMD_OUT" | grep -v "<nwid>" | wc -l )
 if [ $CON_COUNT -lt 1 ]; then
@@ -111,8 +82,7 @@ while IFS= read -r LINE; do
     fi
 done <<< "$CMD_OUT"
 
-#configure iptables if gateway mode is specified
-#TODO: add support for multiple ZT gateways using gateway config file
+#Configure iptables if gateway mode is specified
 if [ ! -z $GATEWAY_MODE ]; then
     #check if ip forwarding is configured and active
     if [ -z $( sysctl net.ipv4.ip_forward | cut -f3 -d' ' ) ]; then
@@ -120,59 +90,13 @@ if [ ! -z $GATEWAY_MODE ]; then
         exit 1
     fi
 
-    #Set local inteface to eth0 if not specified
-    [ -z $LO_DEV ] && LO_DEV=eth0
-
-    #Set ZT interface to first connected network in the list if not specified
-    [ -z $ZT_DEV ] && ZT_DEV=$( zerotier-cli listnetworks | grep -m 1 "OK" | cut -f8 -d' ' ) 
-    case ${GATEWAY_MODE,,} in
-        inbound)
-            echo "INFO: Configuring iptables for inbound access (ZT<$ZT_DEV> -> local<$LO_DEV>)."
-            iptables -t nat -C POSTROUTING -o $LO_DEV -j MASQUERADE 2>/dev/null || {
-              iptables -t nat -A POSTROUTING -o $LO_DEV -j MASQUERADE
-            }
-            iptables -C FORWARD -i $LO_DEV -o $ZT_DEV -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || {
-              iptables -A FORWARD -i $LO_DEV -o $ZT_DEV -m state --state RELATED,ESTABLISHED -j ACCEPT
-            }
-            iptables -C FORWARD -i $ZT_DEV -o $LO_DEV -j ACCEPT 2>/dev/null || {
-              iptables -A FORWARD -i $ZT_DEV -o $LO_DEV -j ACCEPT
-            }
-        ;;
-
-        outbound)
-            echo "INFO: Configuring iptables for outbound access (ZT<$ZT_DEV> <- local<$LO_DEV>)."
-            iptables -t nat -C POSTROUTING -o $ZT_DEV -j MASQUERADE 2>/dev/null || {
-              iptables -t nat -A POSTROUTING -o $ZT_DEV -j MASQUERADE
-            }
-            iptables -C FORWARD -i $ZT_DEV -o $LO_DEV -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || {
-              iptables -A FORWARD -i $ZT_DEV -o $LO_DEV -m state --state RELATED,ESTABLISHED -j ACCEPT
-            }
-            iptables -C FORWARD -i $LO_DEV -o $ZT_DEV -j ACCEPT 2>/dev/null || {
-              iptables -A FORWARD -i $LO_DEV -o $ZT_DEV -j ACCEPT
-            }
-        ;;
-
-        both)
-            echo "INFO: Configuring iptables for bidirectional access (ZT<$ZT_DEV> <> local<$LO_DEV>)."
-            iptables -t nat -C POSTROUTING -o $LO_DEV -j MASQUERADE 2>/dev/null || {
-              iptables -t nat -A POSTROUTING -o $LO_DEV -j MASQUERADE
-            }
-            iptables -t nat -C POSTROUTING -o $ZT_DEV -j MASQUERADE 2>/dev/null || {
-              iptables -t nat -A POSTROUTING -o $ZT_DEV -j MASQUERADE
-            }
-            iptables -C FORWARD -i $LO_DEV -o $ZT_DEV -j ACCEPT 2>/dev/null || {
-              iptables -A FORWARD -i $LO_DEV -o $ZT_DEV -j ACCEPT
-            }
-            iptables -C FORWARD -i $ZT_DEV -o $LO_DEV -j ACCEPT 2>/dev/null || {
-              iptables -A FORWARD -i $ZT_DEV -o $LO_DEV -j ACCEPT
-            }
-        ;;
-        *)
-            echo "ERROR: Unknown Gateway mode ($GATEWAY_MODE)."
-        ;;
-    esac
+    #Import iptables saved rules
+    $FILE=/etc/iptables/rules.v4
+    if [ -f "$FILE" ]; then
+        iptables-restore -n $FILE
+        echo "INFO: Successfully imported iptables save file from $FILE."
+    fi
 fi
 
 wait $APP_PID
 exit 0
-
