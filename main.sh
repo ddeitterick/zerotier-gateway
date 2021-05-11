@@ -29,7 +29,6 @@ fi
 if [ ! -c /dev/net/tun ]; then
         echo 'FATAL ERROR: Failed to find/create /dev/net/tun device.'
         exit 1
-
 fi
 
 #Start the ZT service
@@ -55,15 +54,16 @@ done
 
 #Join one or more network(s) if specified 
 if [ ! -z "$NETWORK_IDS" ]; then
-    while IFS= read -d ';' LINE; do
-echo "$LINE"
-        CMD_OUT=$( zerotier-cli join $LINE )
+    LINE=$(echo $NETWORK_IDS | tr ";" "\n")
+    for ID in $LINE; do
+        echo "$ID"
+        CMD_OUT=$( zerotier-cli join $ID )
         if [ -z "$( echo "$CMD_OUT" | grep "200 join OK" )" ]; then
-            echo "ERROR: Could not join network ($LINE). MSG is <$CMD_OUT>"
+            echo "ERROR: Could not join network ($ID). MSG is <$CMD_OUT>"
         else
-            echo "INFO: Joined network $LINE"
+            echo "INFO: Joined network $ID"
         fi
-    done <<< "$NETWORK_IDS"
+    done
 fi
 
 #Log which network(s) are connected
@@ -82,21 +82,28 @@ while IFS= read -r LINE; do
     fi
 done <<< "$CMD_OUT"
 
-#Configure iptables if gateway mode is specified
-if [ ! -z $GATEWAY_MODE ]; then
-    #check if ip forwarding is configured and active
-    if [ -z $( sysctl net.ipv4.ip_forward | cut -f3 -d' ' ) ]; then
-        echo "FATAL ERROR: ip forwarding not enabled in host, Gateway mode will not work. Please enable ip forwarding in host before starting the container again."
-        exit 1
-    fi
-
-    #Import iptables saved rules
-    FILE=/etc/iptables/rules.v4
-    if [ -f "$FILE" ]; then
-        iptables-restore -n $FILE
-        echo "INFO: Successfully imported iptables save file from $FILE."
-    fi
+#Check if ip forwarding is configured and active
+if [ -z $( sysctl net.ipv4.ip_forward | cut -f3 -d' ' ) ]; then
+    echo "FATAL ERROR: IP forwarding not enabled in host. Please enable IP forwarding in host before starting the container again."
+    exit 1
 fi
+
+#Import iptables saved rules
+FILE=/etc/iptables/rules.v4
+if [ -f "$FILE" ]; then
+    iptables-restore -n $FILE
+    echo "INFO: Successfully imported iptables save file from $FILE."
+else
+    echo "WARNING: iptables save file not imported."
+fi
+
+#Add static route for Docker host traffic
+CMD_OUT=$( route add -net $DOCKER_HOST netmask 255.255.255.255 gw 172.16.100.1 )
+    if [ -z $CMD_OUT ]; then
+        echo "INFO: Static route added successfully"
+    else
+        echo "ERROR: Could not add static route. MSG is <$CMD_OUT>"
+    fi
 
 wait $APP_PID
 exit 0
