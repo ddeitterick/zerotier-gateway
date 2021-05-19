@@ -56,7 +56,6 @@ done
 if [ ! -z "$NETWORK_IDS" ]; then
     LINE=$(echo $NETWORK_IDS | tr ";" "\n")
     for ID in $LINE; do
-        echo "$ID"
         CMD_OUT=$( zerotier-cli join $ID )
         if [ -z "$( echo "$CMD_OUT" | grep "200 join OK" )" ]; then
             echo "ERROR: Could not join network ($ID). MSG is <$CMD_OUT>"
@@ -98,7 +97,7 @@ else
 fi
 
 #Add static route for Docker host traffic
-CMD_OUT=$( route add -net $DOCKER_HOST netmask 255.255.255.255 gw 172.16.100.1 )
+CMD_OUT=$( route add -net $DOCKER_HOST netmask 255.255.255.255 gw 172.16.100.1 2>&1)
     if [ -z $CMD_OUT ]; then
         echo "INFO: Static route added successfully"
     else
