@@ -41,7 +41,7 @@ do
     CMD_OUT=$( zerotier-cli status )
     if [ ! -z "$( echo "$CMD_OUT" | grep "ONLINE" )" ]; then
         TRY_COUNT=$RETRY_COUNT
-        echo "INFO: ZeroTier service is now ONLINE. Your ZT address is $( echo "$CMD_OUT" | cut -f3 -d' ' )."
+        echo "INFO: ZeroTier service is now ONLINE. Your ZT address is: $( echo "$CMD_OUT" | cut -f3 -d' ' )"
     else
         TRY_COUNT=`expr $TRY_COUNT + 1`
         if [ $TRY_COUNT -eq $RETRY_COUNT ]; then
@@ -58,9 +58,9 @@ if [ ! -z "$NETWORK_IDS" ]; then
     for ID in $LINE; do
         CMD_OUT=$( zerotier-cli join $ID )
         if [ -z "$( echo "$CMD_OUT" | grep "200 join OK" )" ]; then
-            echo "ERROR: Could not join network ($ID). MSG is <$CMD_OUT>"
+            echo "ERROR: Could not join network: ($ID). MSG is <$CMD_OUT>"
         else
-            echo "INFO: Joined network $ID"
+            echo "INFO: Joined network: $ID"
         fi
     done
 fi
@@ -71,13 +71,13 @@ CON_COUNT=$( echo "$CMD_OUT" | grep -v "<nwid>" | wc -l )
 if [ $CON_COUNT -lt 1 ]; then
     echo "WARNING: No networks configured!"
 else
-    echo "INFO: Networks configured - $CON_COUNT."
-    echo "INFO: Networks connected - $( echo "$CMD_OUT" | grep "OK" | wc -l )."
+    echo "INFO: Networks configured: $CON_COUNT."
+    echo "INFO: Networks connected: $( echo "$CMD_OUT" | grep "OK" | wc -l )."
 fi
 while IFS= read -r LINE; do
     if [ ! -z "$( echo "$LINE" | grep "OK" )" ]; then
         FIELDS=($LINE)
-        echo "INFO: Connected to ${FIELDS[6]} network with name <${FIELDS[3]}> and id <${FIELDS[2]}> using interface <${FIELDS[7]}> with MAC <${FIELDS[4]}> and IP <${FIELDS[8]}>" 
+        echo "INFO: Connected to ${FIELDS[6]} network with name <${FIELDS[3]}> and id <${FIELDS[2]}> using interface <${FIELDS[7]}> with MAC <${FIELDS[4]}> and IP(s) <${FIELDS[8]}>" 
     fi
 done <<< "$CMD_OUT"
 
@@ -91,7 +91,7 @@ fi
 FILE=/etc/iptables/rules.v4
 if [ -f "$FILE" ]; then
     iptables-restore -n $FILE
-    echo "INFO: Successfully imported iptables save file from $FILE."
+    echo "INFO: Successfully imported iptables save file from: $FILE"
 else
     echo "WARNING: iptables save file not imported."
 fi
@@ -99,7 +99,7 @@ fi
 #Add static route for Docker host traffic
 CMD_OUT=$( route add -net $DOCKER_HOST netmask 255.255.255.255 gw 172.16.100.1 2>&1)
     if [ -z $CMD_OUT ]; then
-        echo "INFO: Static route added successfully"
+        echo "INFO: Static route added successfully."
     else
         echo "ERROR: Could not add static route. MSG is <$CMD_OUT>"
     fi
