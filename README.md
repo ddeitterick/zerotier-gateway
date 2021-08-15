@@ -1,8 +1,10 @@
 [![Docker Pulls](https://flat.badgen.net/docker/pulls/ddeitterick/zerotier-gateway)](https://hub.docker.com/r/ddeitterick/zerotier-gateway)
 [![Docker Stars](https://flat.badgen.net/docker/stars/ddeitterick/zerotier-gateway)](https://hub.docker.com/r/ddeitterick/zerotier-gateway)
-![Latest Tag](https://flat.badgen.net/github/tag/ddeitterick/zerotier-gateway)
-![Last Commit](https://flat.badgen.net/github/last-commit/ddeitterick/zerotier-gateway)
-![License](https://flat.badgen.net/github/license/ddeitterick/zerotier-gateway)
+[![Tags](https://flat.badgen.net/github/tags/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/tags)
+[![Latest Tag](https://flat.badgen.net/github/tag/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/tags)
+[![Last Commit](https://flat.badgen.net/github/last-commit/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/commits/master)
+![Status](https://flat.badgen.net/github/status/ddeitterick/zerotier-gateway)
+[![License](https://flat.badgen.net/github/license/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/blob/master/LICENSE)
 
 ## zerotier-gateway
 
