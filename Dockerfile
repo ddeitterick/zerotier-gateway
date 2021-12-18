@@ -1,6 +1,6 @@
 FROM alpine:3.14.1 as builder
 
-ARG ZT_COMMIT=3c7bd65bc929a086f3fea04e7371c817bbf77a86
+ARG ZT_COMMIT=eac56a2e25bbd27f77505cbd0c21b86abdfbd36b
 
 RUN apk add --update alpine-sdk linux-headers \
   && git clone --quiet https://github.com/zerotier/ZeroTierOne.git /src \
@@ -9,7 +9,7 @@ RUN apk add --update alpine-sdk linux-headers \
   && make ZT_DEBUG=1 -f make-linux.mk
 
 FROM alpine:3.14.1
-LABEL version="1.8.1"
+LABEL version="1.8.4"
 LABEL description="ZeroTier One as Docker Image"
 
 RUN apk add --update --no-cache libc6-compat libstdc++ bash iptables
