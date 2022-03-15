@@ -1,4 +1,4 @@
-FROM alpine:3.14.1 as builder
+FROM alpine:3.15.0 as builder
 
 ARG ZT_COMMIT=4a2c75a60941e75f36ed1961458a42fbd12ea4ac
 
