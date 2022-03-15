@@ -1,5 +1,5 @@
 ARG ALPINE_IMAGE=alpine
-ARG ALPINE_VERSION=3.15
+ARG ALPINE_VERSION=edge
 ARG ZT_COMMIT=4a2c75a60941e75f36ed1961458a42fbd12ea4ac
 ARG ZT_VERSION=1.8.6
 
@@ -7,7 +7,7 @@ FROM ${ALPINE_IMAGE}:${ALPINE_VERSION} as builder
 
 ARG ZT_COMMIT
 
-RUN apk add --update alpine-sdk linux-headers cargo rust openssl-dev pkgconfig \
+RUN apk add --update alpine-sdk linux-headers openssl-dev \
   && git clone --quiet https://github.com/zerotier/ZeroTierOne.git /src \
   && git -C src reset --quiet --hard ${ZT_COMMIT} \
   && cd /src \
