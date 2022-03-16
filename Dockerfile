@@ -11,7 +11,7 @@ RUN apk add --update alpine-sdk linux-headers cargo openssl-dev \
   && git clone --quiet https://github.com/zerotier/ZeroTierOne.git /src \
   && git -C src reset --quiet --hard ${ZT_COMMIT} \
   && cd /src \
-  && make -f make-linux.mk
+  && make ZT_DEBUG=1 -f make-linux.mk
 
 FROM ${ALPINE_IMAGE}:${ALPINE_VERSION}
 
