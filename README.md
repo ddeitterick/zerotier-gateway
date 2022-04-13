@@ -10,7 +10,7 @@
 
 #### Description
 
-This container is based on a lightweight Alpine Linux image and a copy of ZeroTier One. It's designed to run on a Synology NAS and function as a gateway between your local network and ZeroTier network(s).
+This container is based on a lightweight Alpine Linux image and a copy of ZeroTier One. It was primarily designed to run on a Synology NAS and function as a gateway between your local network and ZeroTier network(s). It will run on other amd64-based machines.
 
 The container uses a macvlan network. One of the side effects of using macvlan is that the container can’t access the host, and vice versa. Because of this an additional "bridge" network is used so that ZeroTier clients can access the Synology NAS. Make sure that this network interface is already created before performing the steps below.
 
@@ -29,7 +29,7 @@ To run this container in the correct way requires some special options to give i
       -v /volume1/docker/zerotier-gateway/zerotier-one:/var/lib/zerotier-one \
       -v /volume1/docker/zerotier-gateway/iptables:/etc/iptables \
       -e NETWORK_IDS="[ZT_NETWORK_ID1;ZT_NETWORK_ID2]" \
-      -e DOCKER_HOST=“[SYNOLOGY_IP]” \
+      -e DOCKER_HOST=“[HOST_IP]” \
       ddeitterick/zerotier-gateway
 
 You will then need to connect the "bridge" network (referenced as bridge-zerotier-gateway in the command below) to the Docker container so that ZeroTier clients can access the Synology NAS IP address:
