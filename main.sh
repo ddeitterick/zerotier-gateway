@@ -34,6 +34,8 @@ fi
 #Start the ZT service
 zerotier-one & export APP_PID=$!
 
+echo "INFO: ZeroTier client version: $( zerotier-cli -v )"
+
 TRY_COUNT=0
 while [ $TRY_COUNT -lt $RETRY_COUNT ]
 do
