@@ -29,7 +29,7 @@ To run this container in the correct way requires some special options to give i
       -v /volume1/docker/zerotier-gateway/zerotier-one:/var/lib/zerotier-one \
       -v /volume1/docker/zerotier-gateway/iptables:/etc/iptables \
       -e NETWORK_IDS="[ZT_NETWORK_ID1;ZT_NETWORK_ID2]" \
-      -e DOCKER_HOST=“[HOST_IP]” \
+      -e DOCKER_HOST="[HOST_IP]" \
       ddeitterick/zerotier-gateway
 
 The environment variable `DOCKER_HOST` specifies the IP address of the computer running Docker (Synology NAS in my example). You will then need to connect the "bridge" network (referenced as bridge-zerotier-gateway in the command below) to the Docker container so that ZeroTier clients can access the Synology NAS IP address:
