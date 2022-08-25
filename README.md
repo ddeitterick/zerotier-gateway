@@ -50,15 +50,15 @@ This runs ddeitterick/zerotier-gateway in a container exposed on the physical ne
       -o parent=ovs_bond0 \
       macvlan1
 
-It also mounts /volume1/docker/zerotier-gateway/zerotier-one to /var/lib/zerotier-one and /volume1/docker/zerotier-gateway/iptables to /etc/iptables inside the container, allowing your service container to persist its state across restarts of the container itself. If you don't do this it'll generate a new identity every time. You can put the actual data somewhere other than /volume1/docker/zerotier-gateway if you want.
+It also mounts `/volume1/docker/zerotier-gateway/zerotier-one` to `/var/lib/zerotier-one` and `/volume1/docker/zerotier-gateway/iptables` to `/etc/iptables` inside the container, allowing your service container to persist its state across restarts of the container itself. If you don't do this it'll generate a new identity every time. You can put the actual data somewhere other than `/volume1/docker/zerotier-gateway` if you want.
 
 To join one or more ZeroTier networks, you can specify the network ids in the environment variable `NETWORK_IDS` (semi-colon delimited).
 
 To configure as a gateway and to provide network address translation (NAT) for ZeroTier clients accessing services behind the gateway on the local network, you may need to complete a couple of additional tasks:
 
-1) Make sure ip forwarding (net.ipv4.ip_forward=1) is enabled on the Synology NAS and stored in /etc/sysctl.conf (to make it persistent) before starting the container. (The startup script will check for this and terminate the container if ip forwarding is disabled.)
+1) Make sure ip forwarding (`net.ipv4.ip_forward=1`) is enabled on the Synology NAS and stored in `/etc/sysctl.conf` (to make it persistent) before starting the container. (The startup script will check for this and terminate the container if ip forwarding is disabled.)
 2) Create the necessary static route(s) for either the ZeroTier network and/or the local network. Static route settings for ZeroTier networks are found in the ZeroTier Central website (https://my.zerotier.com) and you can configure static route(s) for your local network in your home router/gateway admin website.
-3) Iptables is used to provide NAT for ZeroTier clients accessing services behind the gateway on the local network. You will need to create a rules.v4 file and place it in /etc/iptables. When the container starts, iptables will import whatever rules are contained in this file.
+3) Iptables is used to provide NAT for ZeroTier clients accessing services behind the gateway on the local network. You will need to create a `rules.v4` file and place it in `/etc/iptables`. When the container starts, iptables will import whatever rules are contained in this file.
 
 An example rules.v4 file is shown below:
 
