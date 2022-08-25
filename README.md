@@ -12,7 +12,7 @@
 
 This container is based on a lightweight Alpine Linux image and a copy of ZeroTier One. It was primarily designed to run on a Synology NAS and function as a gateway between your local network and ZeroTier network(s). It will run on other amd64-based machines.
 
-The container uses a macvlan network. One of the side effects of using macvlan is that the container can’t access the host, and vice versa. Because of this an additional "bridge" network is used so that ZeroTier clients can access the Synology NAS. Make sure that this network interface is already created before performing the steps below.
+The container uses a macvlan network. One of the side effects of using macvlan is that the container can’t access the host, and vice versa. Because of this an additional "bridge" network is used so that ZeroTier clients can access the Synology NAS. Make sure that this network is already created in Docker before performing the steps below.
 
 #### Run
 
@@ -32,7 +32,7 @@ To run this container in the correct way requires some special options to give i
       -e DOCKER_HOST=“[HOST_IP]” \
       ddeitterick/zerotier-gateway
 
-You will then need to connect the "bridge" network (referenced as bridge-zerotier-gateway in the command below) to the Docker container so that ZeroTier clients can access the Synology NAS IP address:
+The environment variable `DOCKER_HOST` specifies the IP address of the computer running Docker (Synology NAS in my example). You will then need to connect the "bridge" network (referenced as bridge-zerotier-gateway in the command below) to the Docker container so that ZeroTier clients can access the Synology NAS IP address:
 
     docker network connect bridge-zerotier-gateway zerotier-gateway
 
@@ -51,7 +51,7 @@ This runs ddeitterick/zerotier-gateway in a container exposed on the physical ne
 
 It also mounts /volume1/docker/zerotier-gateway/zerotier-one to /var/lib/zerotier-one and /volume1/docker/zerotier-gateway/iptables to /etc/iptables inside the container, allowing your service container to persist its state across restarts of the container itself. If you don't do this it'll generate a new identity every time. You can put the actual data somewhere other than /volume1/docker/zerotier-gateway if you want.
 
-To join one or more ZeroTier networks, you can specify the network ids in the environment variable NETWORK_IDS (semi-colon delimited).
+To join one or more ZeroTier networks, you can specify the network ids in the environment variable `NETWORK_IDS` (semi-colon delimited).
 
 To configure as a gateway and to provide network address translation (NAT) for ZeroTier clients accessing services behind the gateway on the local network, you may need to complete a couple of additional tasks:
 
