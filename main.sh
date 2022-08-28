@@ -31,6 +31,28 @@ if [ ! -c /dev/net/tun ]; then
         exit 1
 fi
 
+#Enable multipath
+if [ ! "$MULTIPATH^^" == "ENABLED" ]; then
+    echo "INFO: Multipath not enabled."
+else
+    if [ ! -f /etc/iproute2/rt_tables ]; then
+        echo "ERROR: rt_tables not found."
+        echo "WARNING: Multipath enabled, but not configured correctly."
+    elif [ -f /etc/iproute2/rt_tables ] && [ ! -f /var/lib/zerotier-one/setuproutes.sh ] ; then
+        echo "ERROR: setuproutes.sh not found. Routing tables not updated."
+        echo "WARNING: Multipath enabled, but not configured correctly."
+    else
+        CMD_OUT=$( /var/lib/zerotier-one/setuproutes.sh 2>&1)
+        if [ -z $CMD_OUT ]; then
+            echo "INFO: Routing tables updated successfully."
+            echo "INFO: Multipath enabled."
+        else
+            echo "ERROR: Could not update routing tables. MSG is <$CMD_OUT>"
+            echo "WARNING: Multipath enabled, but not configured correctly."
+        fi
+    fi    
+fi
+
 #Start the ZT service
 zerotier-one & export APP_PID=$!
 
@@ -90,8 +112,7 @@ if [ -z $( sysctl net.ipv4.ip_forward | cut -f3 -d' ' ) ]; then
 fi
 
 #Import iptables saved rules
-FILE=/etc/iptables/rules.v4
-if [ -f "$FILE" ]; then
+if [ -f /etc/iptables/rules.v4 ]; then
     iptables-restore -n $FILE
     echo "INFO: Successfully imported iptables save file from: $FILE"
 else
