@@ -71,6 +71,58 @@ An example rules.v4 file is shown below:
     -I POSTROUTING -o eth0 -j MASQUERADE
     COMMIT
 
+### Multipath
+
+Multipath support is available in ZeroTier. Multipath is a type of link aggregation allows the simultaneous (or conditional) use of multiple physical links to enable increased total throughput, load balancing, redundancy, and fault tolerance. There are a variety of standard policies available that can be used right out of the box with little to no configuration. These policies are directly inspired by the policies offered by the Linux kernel but are now offered in user-space and are available on all platforms that ZeroTier supports. Additional information is available here: https://docs.zerotier.com/zerotier/multipath
+
+To enable multipath in this container, set the `MULTIPATH` environment variable to `Enabled`. There are a couple of additional items necessary in order for multipath to function correctly:
+
+1. Multiple network interfaces
+2. Unique routing tables per interface
+3. Enable multipath in ZeroTier local.config file
+
+You will need to make sure that you have multiple network interfaces connected to the container. You can use `docker network connect` to connect any number of additional network inferfaces. Each additional network interface will need to be setup with it's own default gateway. In order to accomplish this, additional routing tables will need to be created. the iproute2 package was installed as a part of this container. Additional routing tables are defined in the `rt_tables` file found in `/etc/iproute2`. You will need to map this file into the container using `-v /volume1/docker/zerotier-gateway/iproute2/rt_tables:/etc/iproute2/rt_tables`. You can put the actual data somewhere other than `/volume1/docker/zerotier-gateway` if you want.
+
+An example rt_tables file is shown below:
+
+    #
+    # reserved values
+    #
+    255	local
+    254	main
+    253	default
+    0	unspec
+    #
+    # local
+    #
+    #1	inr.ruhep
+    101	ISP_1
+    102	ISP_2
+
+With the additional routing tables defined, next you will need to create routes in those routing tables. You will need to create a file called `setuproutes.sh` and place it in the root of the zerotier-one directory.
+
+An example setuproutes.sh file is shown below:
+
+    #!/bin/sh
+    IF1="eth1"
+    IF2="eth2"
+    IP1="172.16.x.x"
+    IP2="192.168.y.y"
+    P1="172.16.x.1"
+    P2="192.168.y.1"
+    P1_NET="172.16.x.0/24"
+    P2_NET="192.168.y.0/24"
+    TBL1="ISP_1"
+    TBL2="ISP_2"
+    ip route add $P1_NET dev $IF1 src $IP1 table $TBL1
+    ip route add default via $P1 table $TBL1
+    ip route add $P2_NET dev $IF2 src $IP2 table $TBL2
+    ip route add default via $P2 table $TBL2
+    ip rule add from $P1_NET table $TBL1
+    ip rule add from $P2_NET table $TBL2
+
+This script will create all the necessary routes in order for each network interface to route correctly. Lastly, you will need to enable multipath via the ZeroTier local.config file. All of the multipath options and examples are availble here: https://docs.zerotier.com/zerotier/multipath
+
 #### Source
 https://github.com/ddeitterick/zerotier-gateway
 
