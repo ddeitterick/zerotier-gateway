@@ -32,7 +32,7 @@ if [ ! -c /dev/net/tun ]; then
 fi
 
 #Enable multipath
-if [ ! "$MULTIPATH^^" == "ENABLED" ]; then
+if [ ! "${MULTIPATH^^}" == "ENABLED" ]; then
     echo "INFO: Multipath not enabled."
 else
     if [ ! -f /etc/iproute2/rt_tables ]; then
