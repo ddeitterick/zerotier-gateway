@@ -112,7 +112,8 @@ if [ -z $( sysctl net.ipv4.ip_forward | cut -f3 -d' ' ) ]; then
 fi
 
 #Import iptables saved rules
-if [ -f /etc/iptables/rules.v4 ]; then
+FILE=/etc/iptables/rules.v4
+if [ -f "$FILE" ]; then
     iptables-restore -n $FILE
     echo "INFO: Successfully imported iptables save file from: $FILE"
 else
