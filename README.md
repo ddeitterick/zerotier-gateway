@@ -8,13 +8,15 @@
 
 ## zerotier-gateway
 
-#### Description
+### Description
 
 This container is based on a lightweight Alpine Linux image and a copy of ZeroTier One. It was primarily designed to run on a Synology NAS and function as a gateway between your local network and ZeroTier network(s). It will run on other amd64-based machines.
 
 The container uses a macvlan network. One of the side effects of using macvlan is that the container can’t access the host, and vice versa. Because of this an additional "bridge" network is used so that ZeroTier clients can access the Synology NAS. Make sure that this network is already created in Docker before performing the steps below.
 
-#### Run
+> **_NOTE:_** The bridge network must use 172.16.100.0/30 because currently the static route to reach the host is hardcoded in main.sh.
+
+### Run
 
 To run this container in the correct way requires some special options to give it special permissions and allow it to persist its files. Here's an example:
 
@@ -71,7 +73,7 @@ An example rules.v4 file is shown below:
     -I POSTROUTING -o eth0 -j MASQUERADE
     COMMIT
 
-### Multipath
+### Multipath (Experimental)
 
 Multipath support is available in ZeroTier. Multipath is a type of link aggregation that allows the simultaneous (or conditional) use of multiple physical links to enable increased total throughput, load balancing, redundancy, and fault tolerance. There are a variety of standard policies available that can be used right out of the box with little to no configuration. These policies are directly inspired by the policies offered by the Linux kernel but are now offered in user-space and are available on all platforms that ZeroTier supports. Additional information is available here: https://docs.zerotier.com/zerotier/multipath
 
@@ -123,12 +125,12 @@ An example setuproutes.sh file is shown below:
 
 This script will create all the necessary routes in order for each network interface to route correctly. Lastly, you will need to enable multipath via the ZeroTier local.config file. All of the multipath options and examples are availble here: https://docs.zerotier.com/zerotier/multipath
 
-#### Source
+### Source
 https://github.com/ddeitterick/zerotier-gateway
 
 Forked from:
 https://github.com/bfg100k/zerotier-gateway
 
-#### References
+### References
 1) Using Docker with macvlan Interfaces: https://blog.scottlowe.org/2016/01/28/docker-macvlan-interfaces/
 2) How to Disable/Enable IP forwarding in Linux: https://linuxconfig.org/how-to-turn-on-off-ip-forwarding-in-linux
