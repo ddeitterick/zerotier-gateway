@@ -3,7 +3,6 @@
 [![Tags](https://flat.badgen.net/github/tags/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/tags)
 [![Latest Tag](https://flat.badgen.net/github/tag/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/tags)
 [![Last Commit](https://flat.badgen.net/github/last-commit/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/commits/master)
-![Status](https://flat.badgen.net/github/status/ddeitterick/zerotier-gateway)
 [![License](https://flat.badgen.net/github/license/ddeitterick/zerotier-gateway)](https://github.com/ddeitterick/zerotier-gateway/blob/master/LICENSE)
 
 ## zerotier-gateway
